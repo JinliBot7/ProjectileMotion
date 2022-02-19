@@ -9,6 +9,11 @@ module.exports = merge(
         plugins:
         [
             new CleanWebpackPlugin()
-        ]
+        ],
+        output: {
+
+            publicPath: "/ProjectileMotion/",
+      
+          }
     }
 )
