@@ -251,7 +251,7 @@ gui.add(debugObject,'velocity').min(0).max(30).step(0.01).name('velocity').liste
 debugObject.pitchAngle = 0
 const shooterRotate = (value) =>
 {
-    indicator_mesh.rotation.x = (0.5+value/180)*Math.PI
+    indicator_mesh.rotation.x = (0.5-value/180)*Math.PI
 }
 gui.add(debugObject,'pitchAngle').min(-90).max(90).step(0.01).name('pitch angle').listen().onChange(shooterRotate)
 // Block Wall
