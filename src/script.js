@@ -29,12 +29,14 @@ debugObject.reset = () =>
         scene.remove(object.mesh)
     }
     indicator_mesh.position.y = 10
+    indicator_mesh.rotation.x = 0.5*Math.PI
     objectsToUpdate.splice(0, objectsToUpdate.length)
     tracking_mesh.position.y = 10
     tracking_mesh.position.z = 0
     flag_first_launch = false
     debugObject.velocity = 10
     debugObject.gravity = -9.81
+    debugObject.pitchAngle = 0
     world.gravity.set(0, - 9.81, 0)
     debugObject.hitTime = 0
     debugObject.hitDistance = 0
@@ -157,7 +159,6 @@ const createSphere = (radius, position,velocity) =>
     // Three.js mesh
     const color7 = new THREE.Color( Math.random(), Math.random(), Math.random() );
 
-
     color.setHex (Math.random() * 0xffffff )
     const this_material = new THREE.MeshStandardMaterial({
         metalness: 0.3,
@@ -184,7 +185,13 @@ const createSphere = (radius, position,velocity) =>
     })
     body.position.copy(position)
     //body.applyLocalForce(new CANNON.Vec3(0, 0, force), new CANNON.Vec3(0, 0, 0))
-    body.velocity=new CANNON.Vec3(0, 0, velocity)
+    const pitch_angle = indicator_mesh.rotation.x-0.5*Math.PI
+    
+    const horizontal_velocity = velocity*Math.cos(pitch_angle)
+    const vertical_velocity = velocity*Math.sin(-pitch_angle)
+    console.log(pitch_angle)
+
+    body.velocity=new CANNON.Vec3(0, vertical_velocity, horizontal_velocity)
     body.addEventListener('collide', playHitSound)
     world.addBody(body)
 
@@ -241,7 +248,12 @@ const createBox = (width, height, depth, position,force=0,mass=1,push=true) =>
 
 debugObject.velocity=10
 gui.add(debugObject,'velocity').min(0).max(30).step(0.01).name('velocity').listen()
-
+debugObject.pitchAngle = 0
+const shooterRotate = (value) =>
+{
+    indicator_mesh.rotation.x = (0.5+value/180)*Math.PI
+}
+gui.add(debugObject,'pitchAngle').min(-90).max(90).step(0.01).name('pitch angle').listen().onChange(shooterRotate)
 // Block Wall
 createBox(10,10,1,{ x: 0, y: 5, z: 24 },0,0,false)
 
@@ -249,11 +261,26 @@ createBox(10,10,1,{ x: 0, y: 5, z: 24 },0,0,false)
 
 // Shoot Position Indicator
 
-const indicator_mesh = new THREE.Mesh(sphereGeometry, sphereMaterial)
+//const indicator_mesh = new THREE.Mesh(sphereGeometry, sphereMaterial)
+const cylinderGeometry = new THREE.CylinderGeometry( 0.3, 0.5, 2, 32 );
+
+const cylinderGeometrycolor = new THREE.Color( 0x000000 )
+    const cylinderGeometr_material = new THREE.MeshStandardMaterial({
+        metalness: 0.3,
+        roughness: 0.4,
+        color: cylinderGeometrycolor
+
+    })
+
+
+
+const indicator_mesh = new THREE.Mesh(cylinderGeometry, cylinderGeometr_material)
+indicator_mesh.rotation.x = 0.5*Math.PI
 indicator_mesh.castShadow = true
 indicator_mesh.position.set(0,10,-20)
 scene.add(indicator_mesh)
 const tracking_mesh=indicator_mesh.clone()
+
 tracking_mesh.position.z = 0
 
 
